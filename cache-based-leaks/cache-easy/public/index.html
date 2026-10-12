@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>cache-easy (150 pts) — Cache Oracle (Single Resource)</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+    .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+    h1 { margin-top: 0; color: #34d399; }
+    .badge { background: #059669; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+    p { line-height: 1.6; color: #cbd5e1; }
+    code { background: #0f172a; padding: 0.2rem 0.4rem; border-radius: 4px; color: #34d399; font-family: monospace; }
+    textarea { width: 100%; height: 250px; background: #0f172a; color: #a5f3fc; border: 1px solid #334155; border-radius: 6px; padding: 1rem; font-family: monospace; box-sizing: border-box; resize: vertical; }
+    button { background: #059669; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem; transition: background 0.2s; }
+    button:hover { background: #047857; }
+    #output { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; background: #0f172a; border-left: 4px solid #34d399; display: none; }
+    .flag { color: #4ade80; font-weight: bold; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>cache-easy <span class="badge">150 pts</span></h1>
+    <p>
+      An e-commerce store at <code>http://victim.ctf:3000</code> features 16 products:
+      <code>item-0</code> through <code>item-15</code>.
+    </p>
+    <p>
+      When a user browses a product, the browser caches its image from <code>http://victim.ctf:3000/images/{id}.jpg</code> with <code>Cache-Control: public, max-age=3600</code>.
+      Before visiting your exploit, the victim bot visited one of these 16 products!
+    </p>
+    <p>
+      Your exploit is rendered in an unprivileged sandbox on <code>http://victim.ctf:8080</code> (sharing the top-level site cache partition with the victim while isolated by port under SOP).
+      Measure the resource fetch timing across all 16 candidate images to identify which product was loaded from cache (&lt;20ms hit vs ~120ms miss), and exfiltrate the detected product name along with your job ID to <code>http://portal.ctf:8000/exfil?jobId={jobId}&product={id}</code>.
+    </p>
+
+    <h3>Submit Exploit Payload</h3>
+    <textarea id="payload" placeholder="<!DOCTYPE html>&#10;<html>&#10;<body>&#10;<script>&#10;  // Your cache timing exploit here...&#10;</script>&#10;</body>&#10;</html>"></textarea>
+    <br>
+    <button id="submitBtn" onclick="submitExploit()">Submit to Bot</button>
+
+    <div id="output">
+      <div id="statusText">Starting bot execution...</div>
+    </div>
+  </div>
+
+  <script>
+    async function submitExploit() {
+      const payload = document.getElementById('payload').value;
+      const output = document.getElementById('output');
+      const statusText = document.getElementById('statusText');
+      const btn = document.getElementById('submitBtn');
+
+      if (!payload.trim()) {
+        alert('Please enter an HTML exploit payload.');
+        return;
+      }
+
+      btn.disabled = true;
+      output.style.display = 'block';
+      statusText.innerHTML = 'Submitting exploit to bot...';
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html: payload })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          statusText.innerHTML = 'Submission error: ' + (data.error || 'Unknown');
+          btn.disabled = false;
+          return;
+        }
+
+        const jobId = data.jobId;
+        statusText.innerHTML = `Job <code>${jobId}</code> launched. Bot is visiting your sandbox...`;
+
+        const interval = setInterval(async () => {
+          const pollRes = await fetch(`/status/${jobId}`);
+          const pollData = await pollRes.json();
+
+          if (pollData.flag) {
+            clearInterval(interval);
+            statusText.innerHTML = `Success! Flag captured:<br><br><span class="flag">${pollData.flag}</span>`;
+            btn.disabled = false;
+          } else if (pollData.status === 'completed') {
+            clearInterval(interval);
+            statusText.innerHTML = 'Bot finished visiting, but no valid product was received at /exfil.';
+            btn.disabled = false;
+          }
+        }, 1000);
+      } catch (err) {
+        statusText.innerHTML = 'Error: ' + err.message;
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

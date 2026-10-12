@@ -1,0 +1,14 @@
+{
+  "name": "cache-easy",
+  "version": "1.0.0",
+  "description": "Cache-Based Leaks Easy - Single Resource Visited Leak",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "cookie-parser": "^1.4.7",
+    "express": "^5.3.0",
+    "puppeteer-core": "^25.13.0"
+  }
+}

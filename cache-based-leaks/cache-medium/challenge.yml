@@ -1,0 +1,25 @@
+name: "cache-medium"
+author: "CTF Team"
+category: "Cache-Based Leaks"
+description: |
+  The victim browsing simulator visits 3 distinct products out of 8 (IDs `1` through `8`) in a randomized sequence before visiting your exploit.
+  Each product view caches its image `/images/product-{id}.jpg`.
+
+  Your exploit page runs inside a same-site sandbox on `http://victim.ctf:8080`, sharing the victim's top-level site cache partition while remaining cross-origin under SOP.
+  Cached assets resolve significantly faster (<20ms) than unvisited assets that incur server latency (>120ms).
+
+  Can you probe all 8 product image URLs to reconstruct the visited product set, and exfiltrate the comma-separated sorted IDs to `/exfil?jobId={jobId}&visited={id1,id2,id3}`?
+value: 300
+type: standard
+
+flags:
+  - "CTF{c4ch3_v1s1t_0rd3r_s3qu3nc3_l34k3d}"
+
+tags:
+  - cache-timing
+  - xs-leaks
+  - visited-set
+  - catalog-probe
+
+state: visible
+version: "0.1"

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>xssi-hard (500 pts) — JSON Syntax Error Oracle</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; background: #0f172a; color: #f8fafc; margin: 0; padding: 2rem; }
+    .container { max-width: 800px; margin: 0 auto; background: #1e293b; padding: 2rem; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.5); }
+    h1 { margin-top: 0; color: #f43f5e; }
+    .badge { background: #be123c; padding: 0.2rem 0.6rem; border-radius: 4px; font-size: 0.85rem; font-weight: bold; }
+    p { line-height: 1.6; color: #cbd5e1; }
+    code { background: #0f172a; padding: 0.2rem 0.4rem; border-radius: 4px; color: #f43f5e; font-family: monospace; }
+    textarea { width: 100%; height: 250px; background: #0f172a; color: #a5f3fc; border: 1px solid #334155; border-radius: 6px; padding: 1rem; font-family: monospace; box-sizing: border-box; resize: vertical; }
+    button { background: #e11d48; color: white; border: none; padding: 0.75rem 1.5rem; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 1rem; transition: background 0.2s; }
+    button:hover { background: #be123c; }
+    #output { margin-top: 1.5rem; padding: 1rem; border-radius: 6px; background: #0f172a; border-left: 4px solid #f43f5e; display: none; }
+    .flag { color: #4ade80; font-weight: bold; font-size: 1.2rem; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>xssi-hard <span class="badge">500 pts</span></h1>
+    <p>
+      The victim endpoint <code>http://victim.ctf:3000/api/search?prefix=...</code> returns raw JSON starting with <code>{</code>:
+      <br>
+      <code>{ "status": "matched", "hint": "..." }</code>
+    </p>
+    <p>
+      Because it starts with <code>{</code>, importing it as a script triggers a JavaScript <code>SyntaxError</code>.
+      However, when the prefix guess matches the victim's secret 4-digit security PIN (<code>1000</code> through <code>9999</code>), the server performs a deep search taking &gt;100ms before returning the response, whereas non-matching prefixes return immediately (&lt;20ms).
+    </p>
+    <p>
+      Your exploit page is rendered inside an unprivileged sandbox on <code>http://attacker.ctf:8080</code>.
+      The victim bot visits your exploit with its authenticated session cookie for <code>victim.ctf</code> active.
+      Exploit this timing differential across JavaScript syntax error events to reconstruct the 4-digit PIN, and exfiltrate it with your job ID to <code>http://portal.ctf:8000/exfil?jobId={jobId}&pin={pin}</code>.
+    </p>
+
+    <h3>Submit Exploit Payload</h3>
+    <textarea id="payload" placeholder="<!DOCTYPE html>&#10;<html>&#10;<body>&#10;<script>&#10;  // Your timing exploit here...&#10;</script>&#10;</body>&#10;</html>"></textarea>
+    <br>
+    <button id="submitBtn" onclick="submitExploit()">Submit to Bot</button>
+
+    <div id="output">
+      <div id="statusText">Starting bot execution...</div>
+    </div>
+  </div>
+
+  <script>
+    async function submitExploit() {
+      const payload = document.getElementById('payload').value;
+      const output = document.getElementById('output');
+      const statusText = document.getElementById('statusText');
+      const btn = document.getElementById('submitBtn');
+
+      if (!payload.trim()) {
+        alert('Please enter an HTML exploit payload.');
+        return;
+      }
+
+      btn.disabled = true;
+      output.style.display = 'block';
+      statusText.innerHTML = 'Submitting exploit to bot...';
+
+      try {
+        const res = await fetch('/submit', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ html: payload })
+        });
+        const data = await res.json();
+        if (!data.success) {
+          statusText.innerHTML = 'Submission error: ' + (data.error || 'Unknown');
+          btn.disabled = false;
+          return;
+        }
+
+        const jobId = data.jobId;
+        statusText.innerHTML = `Job <code>${jobId}</code> launched. Bot is visiting your sandbox...`;
+
+        const interval = setInterval(async () => {
+          const pollRes = await fetch(`/status/${jobId}`);
+          const pollData = await pollRes.json();
+
+          if (pollData.flag) {
+            clearInterval(interval);
+            statusText.innerHTML = `Success! Flag captured:<br><br><span class="flag">${pollData.flag}</span>`;
+            btn.disabled = false;
+          } else if (pollData.status === 'completed') {
+            clearInterval(interval);
+            statusText.innerHTML = 'Bot finished visiting, but no valid PIN was received at /exfil.';
+            btn.disabled = false;
+          }
+        }, 1000);
+      } catch (err) {
+        statusText.innerHTML = 'Error: ' + err.message;
+        btn.disabled = false;
+      }
+    }
+  </script>
+</body>
+</html>

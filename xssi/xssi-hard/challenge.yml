@@ -1,0 +1,24 @@
+name: "xssi-hard"
+author: "CTF Team"
+category: "XSSI"
+description: |
+  The victim system provides a secure prefix-search API at `http://victim.ctf:3000/api/search?prefix=...`.
+  The endpoint returns JSON beginning with `{`, which prevents normal execution when loaded via `<script>` tags by triggering a syntax error.
+
+  However, if the guessed prefix matches the beginning of the victim's secret 4-digit PIN (1000 through 9999), the server performs an internal index scan that delays the response by >100ms before triggering the error. Non-matching prefixes return immediately.
+
+  Can you exploit this timing differential across JavaScript syntax error events to reconstruct the 4-digit PIN, submit it with your bound jobId to `/exfil`, and capture the flag?
+value: 500
+type: standard
+
+flags:
+  - "CTF{xss1_js0n_synt4x_3rr0r_t1m1ng_0r4cl3}"
+
+tags:
+  - xssi
+  - xs-leaks
+  - error-based-leaks
+  - syntax-error-timing
+
+state: visible
+version: "0.1"

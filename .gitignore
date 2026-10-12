@@ -1,0 +1,4 @@
+# Stale sandboxes and logs
+sandboxes/
+*.log
+node_modules/

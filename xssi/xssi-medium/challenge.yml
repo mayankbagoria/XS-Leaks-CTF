@@ -1,0 +1,25 @@
+name: "xssi-medium"
+author: "CTF Team"
+category: "XSSI"
+description: |
+  The victim application serves authenticated user records by invoking a function call in a dynamic script:
+  `renderUserProfile(["admin", "SECRET_KEY", "Security Operations"]);`
+
+  Can you craft an HTML/JavaScript exploit payload that defines the global callback function (`window.renderUserProfile`), intercepts the victim's secret token when the bot visits, and exfiltrates it to capture the flag?
+
+  Submit your HTML payload to the bot portal to trigger the victim simulation.
+value: 300
+type: standard
+
+flags:
+  - "CTF{xss1_funct10n_c4ll_pr0t0_0v3rr1d3_succ3ss}"
+
+tags:
+  - xssi
+  - xs-leaks
+  - browser-security
+  - function-interception
+  - callback-override
+
+state: visible
+version: "0.1"

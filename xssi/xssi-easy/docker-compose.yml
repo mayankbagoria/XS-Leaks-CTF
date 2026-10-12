@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  xssi-easy:
+    build: .
+    ports:
+      - "8001:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG:-CTF{xss1_gl0b4l_v4r_d3f1n3_pr0p3rty_pwn3d}}
+    restart: unless-stopped

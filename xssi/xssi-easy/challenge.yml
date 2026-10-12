@@ -1,0 +1,26 @@
+name: "xssi-easy"
+author: "CTF Team"
+category: "XSSI"
+description: |
+  An internal corporate portal dynamically serves authenticated user scripts at `/api/profile.js`.
+  When an administrator visits, the script declares a secret token in the global scope:
+  `var secretToken = "...";`
+
+  Since players cannot host their own public servers, submit your raw HTML/JavaScript exploit payload to the bot portal.
+  The bot visits your exploit page in a sandboxed browser context with its victim session cookies active!
+  
+  Can you intercept the global variable declaration via `Object.defineProperty` and exfiltrate the secret?
+value: 150
+type: standard
+
+flags:
+  - "CTF{xss1_gl0b4l_v4r_d3f1n3_pr0p3rty_pwn3d}"
+
+tags:
+  - xssi
+  - xs-leaks
+  - browser-security
+  - javascript
+
+state: visible
+version: "0.1"

@@ -1,0 +1,25 @@
+name: "cache-easy"
+author: "CTF Team"
+category: "Cache-Based Leaks"
+description: |
+  An e-commerce store at `http://victim.ctf:3000` features 16 secret products: `item-0` through `item-15`.
+  When viewed, the product image is stored in the browser's HTTP cache.
+
+  The victim bot visits one of these product pages before browsing your submitted HTML exploit page.
+  Decoy endpoints use strict `no-store` headers, but the product images retain `public` caching.
+
+  Can you probe the resource loading times across all 16 candidate images to detect which asset was loaded from cache, and exfiltrate the visited product name?
+value: 150
+type: standard
+
+flags:
+  - "CTF{c4ch3_t1m1ng_s1ngl3_b1t_v1s1t3d}"
+
+tags:
+  - cache-timing
+  - xs-leaks
+  - browser-cache
+  - web
+
+state: visible
+version: "0.1"

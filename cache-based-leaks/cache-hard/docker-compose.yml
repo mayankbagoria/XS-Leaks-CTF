@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  cache-hard:
+    build: .
+    ports:
+      - "8006:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG:-CTF{d0ubl3_k3y3d_c4ch3_byp4ss_m4st3r}}
+    restart: unless-stopped

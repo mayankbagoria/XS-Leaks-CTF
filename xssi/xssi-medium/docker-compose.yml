@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  xssi-medium:
+    build: .
+    ports:
+      - "8002:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG:-CTF{xss1_funct10n_c4ll_pr0t0_0v3rr1d3_succ3ss}}
+    restart: unless-stopped

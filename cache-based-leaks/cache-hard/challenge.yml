@@ -1,0 +1,27 @@
+name: "cache-hard"
+author: "CTF Team"
+category: "Cache-Based Leaks"
+description: |
+  The victim viewed a classified report at `http://victim.ctf:3000/report/:id` for one of 8 secret badges (`badge-0` through `badge-7`).
+  
+  Modern browsers partition the HTTP cache using double-keying `(top_frame_origin, resource_url)`, rendering traditional cross-origin `fetch()` cache-timing attacks ineffective across different sites.
+
+  However, by opening a subwindow or navigating to the victim site, the top-level origin context becomes `victim.ctf`, bypassing double-keyed partitioning and allowing the exploit to detect cached resources via window navigation timing.
+
+  Can you exploit this top-level navigation partition bypass to detect which badge was viewed by the victim, exfiltrate the secret badge to `/exfil?jobId={jobId}&badge=...`, and capture the flag?
+value: 500
+type: standard
+
+flags:
+  - "CTF{d0ubl3_k3y3d_c4ch3_byp4ss_m4st3r}"
+
+tags:
+  - cache-timing
+  - xs-leaks
+  - double-keyed-cache
+  - partition-bypass
+  - navigation-timing
+  - window-open
+
+state: visible
+version: "0.1"

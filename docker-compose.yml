@@ -1,0 +1,124 @@
+version: '3.8'
+
+services:
+  xssi-easy:
+    build:
+      context: ./xssi/xssi-easy
+    container_name: ctf-xssi-easy
+    ports:
+      - "8001:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG_XSSI_EASY:-CTF{xss1_gl0b4l_v4r_d3f1n3_pr0p3rty_pwn3d}}
+    networks:
+      - net_xssi_easy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  xssi-medium:
+    build:
+      context: ./xssi/xssi-medium
+    container_name: ctf-xssi-medium
+    ports:
+      - "8002:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG_XSSI_MEDIUM:-CTF{xss1_funct10n_c4ll_pr0t0_0v3rr1d3_succ3ss}}
+    networks:
+      - net_xssi_medium
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  xssi-hard:
+    build:
+      context: ./xssi/xssi-hard
+    container_name: ctf-xssi-hard
+    ports:
+      - "8003:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG_XSSI_HARD:-CTF{xss1_js0n_synt4x_3rr0r_t1m1ng_0r4cl3}}
+    networks:
+      - net_xssi_hard
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  cache-easy:
+    build:
+      context: ./cache-based-leaks/cache-easy
+    container_name: ctf-cache-easy
+    ports:
+      - "8004:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG_CACHE_EASY:-CTF{c4ch3_t1m1ng_s1ngl3_b1t_v1s1t3d}}
+    networks:
+      - net_cache_easy
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  cache-medium:
+    build:
+      context: ./cache-based-leaks/cache-medium
+    container_name: ctf-cache-medium
+    ports:
+      - "8005:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG_CACHE_MEDIUM:-CTF{c4ch3_v1s1t_0rd3r_s3qu3nc3_l34k3d}}
+    networks:
+      - net_cache_medium
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+  cache-hard:
+    build:
+      context: ./cache-based-leaks/cache-hard
+    container_name: ctf-cache-hard
+    ports:
+      - "8006:8000"
+    environment:
+      - VICTIM_PORT=3000
+      - PORTAL_PORT=8000
+      - FLAG=${FLAG_CACHE_HARD:-CTF{d0ubl3_k3y3d_c4ch3_byp4ss_m4st3r}}
+    networks:
+      - net_cache_hard
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 10s
+      timeout: 3s
+      retries: 3
+    restart: unless-stopped
+
+networks:
+  net_xssi_easy:
+  net_xssi_medium:
+  net_xssi_hard:
+  net_cache_easy:
+  net_cache_medium:
+  net_cache_hard:
